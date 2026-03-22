@@ -6,12 +6,13 @@ Export bugs, code smells, and vulnerabilities from your GitRoll-scanned repos in
 
 - Node.js 18+ (uses built-in `fetch`)
 - A GitRoll account with scanned repos
+- A GitHub token (only if using `create-issues.mjs`)
 
 ## Quick Start
 
 ```bash
 cp .env.example .env
-# Edit .env (see below)
+# Edit .env with your user ID
 node export-reports.mjs        # Export reports to JSON
 node create-issues.mjs         # Create GitHub issues from reports
 ```
@@ -35,24 +36,13 @@ https://gitroll.io/profile/AbCdEfGhIjKlMnOpQrStUv
 
 Copy everything after `profile/` — that's your user ID. It's a random string, not your GitHub username.
 
-### How to get your Firebase Token
-
-1. Log into [gitroll.io](https://gitroll.io) with GitHub
-2. Open your browser's Developer Tools (F12)
-3. Go to the **Network** tab
-4. Refresh your overview/profile page
-5. Filter by `accounts:lookup`
-6. Click on the `accounts:lookup?key=...` request
-7. Click the **Payload** tab
-8. The `idToken` value is your Firebase token — copy the whole thing
-
-The token is a long JWT starting with `eyJ`. It expires after ~1 hour — if scripts start failing, grab a fresh one.
-
 ### How to get a GitHub Token
 
 1. Go to https://github.com/settings/tokens
 2. Generate a new **classic** token with `repo` scope
 3. Copy the `ghp_...` value
+
+Only needed for `create-issues.mjs`. The exporter script doesn't need a GitHub token.
 
 ## Scripts
 
@@ -61,7 +51,7 @@ The token is a long JWT starting with `eyJ`. It expires after ~1 hour — if scr
 Fetches scan data from GitRoll and saves one JSON file per repo to `./reports/`.
 
 ```bash
-node export-reports.mjs                         # Use hardcoded scan IDs
+node export-reports.mjs                         # Auto-discovers repos from profile
 node export-reports.mjs <scanId1> <scanId2> ... # Pass scan IDs manually
 ```
 
@@ -72,7 +62,7 @@ Each report includes:
 
 ### `create-issues.mjs`
 
-Reads reports from `./reports/` and creates GitHub issues.
+Reads reports from `./reports/` and creates/updates GitHub issues.
 
 ```bash
 node create-issues.mjs            # All repos
@@ -83,7 +73,7 @@ For each repo:
 - **Detailed findings** → 1 issue per category (bugs, code smells, vulnerabilities) with checkboxes grouped by file
 - **Summary only** → 1 combined issue with metric counts
 
-Skips repos with 0 issues. Checks for existing issues by title to avoid duplicates.
+Skips repos with 0 issues. Updates existing issues on re-run instead of creating duplicates.
 
 ### Example issue
 
@@ -120,7 +110,6 @@ reports/
 
 | Problem | Fix |
 |---------|-----|
-| `HTTP 401` | Token expired — get a fresh one |
 | `0 scan IDs found` | Pass scan IDs manually as arguments to `export-reports.mjs` |
 | `HTTP 429` | Rate limited — wait and retry |
 | GitHub `403` | Token needs `repo` scope |
