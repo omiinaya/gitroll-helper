@@ -6,7 +6,8 @@
     "dev": "next dev -p 5188",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "node -e \"const fs=require('fs'),p=require('path'),r=p.resolve('..'),n=p.join(r,'node_modules');fs.mkdirSync(n,{recursive:true});try{fs.symlinkSync(p.resolve('node_modules','tailwindcss'),p.join(n,'tailwindcss'))}catch{}try{fs.symlinkSync(p.resolve('node_modules','@tailwindcss'),p.join(n,'@tailwindcss'))}catch{}\""
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
