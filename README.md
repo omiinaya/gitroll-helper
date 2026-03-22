@@ -11,13 +11,13 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open http://localhost:3000, sign in with GitHub, paste your GitRoll profile URL, and go.
+Open http://localhost:5188, sign in with GitHub, paste your GitRoll profile URL, and go.
 
 ### GitHub OAuth Setup
 
 1. Go to https://github.com/settings/developers → **New OAuth App**
-2. Set **Homepage URL** to `http://localhost:3000`
-3. Set **Callback URL** to `http://localhost:3000/api/auth/callback/github`
+2. Set **Homepage URL** to `http://localhost:5188`
+3. Set **Callback URL** to `http://localhost:5188/api/auth/callback/github`
 4. Copy the Client ID and Client Secret into `.env.local`
 5. Generate a secret: `openssl rand -base64 32` → paste as `NEXTAUTH_SECRET`
 
@@ -94,4 +94,4 @@ Title: [GitRoll] 122 Code Smells Found
 | `HTTP 429` | Rate limited — wait and retry |
 | GitHub `403` | Token needs `repo` scope |
 | Issues have no details | Older GitRoll scans only have summary metrics, not per-issue breakdowns |
-| OAuth callback error | Make sure callback URL matches exactly in GitHub OAuth app settings |
+| OAuth callback error | Make sure callback URL matches exactly (`http://localhost:5188/api/auth/callback/github`) in GitHub OAuth app settings |
