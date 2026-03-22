@@ -1,50 +1,45 @@
-# GitRoll Report Exporter
+# GitRoll Helper
 
-Export bugs, code smells, and vulnerabilities from your GitRoll-scanned repos into JSON files, then optionally create GitHub issues with checkboxes to track fixes.
+Export bugs, code smells & vulnerabilities from your GitRoll-scanned repos, then create GitHub issues to track fixes.
 
-## Requirements
+## Quick Start (Web UI)
 
-- Node.js 18+ (uses built-in `fetch`)
-- A GitRoll account with scanned repos
-- A GitHub token (only if using `create-issues.mjs`)
+```bash
+cd webui
+cp .env.example .env.local
+# Fill in GITHUB_ID, GITHUB_SECRET, NEXTAUTH_SECRET (see below)
+npm run dev
+```
 
-## Quick Start
+Open http://localhost:3000, sign in with GitHub, paste your GitRoll profile URL, and go.
+
+### GitHub OAuth Setup
+
+1. Go to https://github.com/settings/developers → **New OAuth App**
+2. Set **Homepage URL** to `http://localhost:3000`
+3. Set **Callback URL** to `http://localhost:3000/api/auth/callback/github`
+4. Copy the Client ID and Client Secret into `.env.local`
+5. Generate a secret: `openssl rand -base64 32` → paste as `NEXTAUTH_SECRET`
+
+## Quick Start (CLI)
 
 ```bash
 cp .env.example .env
-# Edit .env with your user ID
+# Edit .env with your user ID and GitHub token
 node export-reports.mjs        # Export reports to JSON
 node create-issues.mjs         # Create GitHub issues from reports
 ```
 
-## Configuration
+### CLI Configuration
 
 Edit `.env`:
 
 ```
-GITROLL_USER_ID=AbCdEfGhIjKlMnOpQrStUv
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+GITROLL_USER_ID=<everything after profile/ in your GitRoll URL>
+GITHUB_TOKEN=<ghp_... classic token with repo scope>
 ```
 
-### How to get your GitRoll User ID
-
-Go to your GitRoll profile page in the browser. The URL looks like:
-
-```
-https://gitroll.io/profile/AbCdEfGhIjKlMnOpQrStUv
-```
-
-Copy everything after `profile/` — that's your user ID. It's a random string, not your GitHub username.
-
-### How to get a GitHub Token
-
-1. Go to https://github.com/settings/tokens
-2. Generate a new **classic** token with `repo` scope
-3. Copy the `ghp_...` value
-
-Only needed for `create-issues.mjs`. The exporter script doesn't need a GitHub token.
-
-## Scripts
+## CLI Scripts
 
 ### `export-reports.mjs`
 
@@ -54,11 +49,6 @@ Fetches scan data from GitRoll and saves one JSON file per repo to `./reports/`.
 node export-reports.mjs                         # Auto-discovers repos from profile
 node export-reports.mjs <scanId1> <scanId2> ... # Pass scan IDs manually
 ```
-
-Each report includes:
-- Repo summary (quality gate, ratings, languages)
-- Full issue details when available (file, line, severity, message, tags)
-- Summary metrics for older scans where detailed issues aren't served by the API
 
 ### `create-issues.mjs`
 
@@ -73,9 +63,9 @@ For each repo:
 - **Detailed findings** → 1 issue per category (bugs, code smells, vulnerabilities) with checkboxes grouped by file
 - **Summary only** → 1 combined issue with metric counts
 
-Skips repos with 0 issues. Updates existing issues on re-run instead of creating duplicates.
+Updates existing issues on re-run instead of creating duplicates.
 
-### Example issue
+### Example Issue
 
 ```
 Title: [GitRoll] 122 Code Smells Found
@@ -96,16 +86,6 @@ Title: [GitRoll] 122 Code Smells Found
 - [ ] **CRITICAL** L6 — Refactor this function to reduce its Cognitive Complexity `brain-overload`
 ```
 
-## Output
-
-```
-reports/
-  _index.json                    # Overview of all repos
-  example-user_example-repo.json # One file per repo
-  example-user_another-repo.json
-  ...
-```
-
 ## Troubleshooting
 
 | Problem | Fix |
@@ -114,3 +94,4 @@ reports/
 | `HTTP 429` | Rate limited — wait and retry |
 | GitHub `403` | Token needs `repo` scope |
 | Issues have no details | Older GitRoll scans only have summary metrics, not per-issue breakdowns |
+| OAuth callback error | Make sure callback URL matches exactly in GitHub OAuth app settings |

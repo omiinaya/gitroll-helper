@@ -1,4 +1,8 @@
 node_modules/
 .env
+.env.local
+.env*.local
 reports/
 docs/*.har
+webui/.next/
+webui/out/
