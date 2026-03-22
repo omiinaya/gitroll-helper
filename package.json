@@ -1,0 +1,27 @@
+{
+  "name": "gitroll-helper",
+  "version": "1.0.0",
+  "description": "Export bugs, code smells, and vulnerabilities from your GitRoll-scanned repos into JSON files, then optionally create GitHub issues with checkboxes to track fixes.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omiinaya/gitroll-helper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/omiinaya/gitroll-helper/issues"
+  },
+  "homepage": "https://github.com/omiinaya/gitroll-helper#readme",
+  "dependencies": {
+    "firebase": "^12.11.0"
+  }
+}
