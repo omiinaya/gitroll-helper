@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 
 const GITROLL_API = "https://gitroll.io/api";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const scanId = searchParams.get("scanId");
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id: scanId } = await params;
   if (!scanId) return NextResponse.json({ error: "scanId required" }, { status: 400 });
 
   // Fetch summary
