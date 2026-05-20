@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 
 const GITROLL_API = "https://gitroll.io/api";
 
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   const { id: scanId } = await params;
-  if (!scanId) return NextResponse.json({ error: "scanId required" }, { status: 400 });
+  if (!scanId)
+    return NextResponse.json({ error: "scanId required" }, { status: 400 });
 
   // Fetch summary
   const summaryRes = await fetch(`${GITROLL_API}/repo-scan/${scanId}`);
@@ -45,9 +49,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     metrics: {
       bugs: parseInt(summary.measures?.bugs?.value ?? "0"),
       codeSmells: parseInt(summary.measures?.code_smells?.value ?? "0"),
-      vulnerabilities: parseInt(summary.measures?.vulnerabilities?.value ?? "0"),
-      reliabilityRating: parseFloat(summary.measures?.reliability_rating?.value ?? "0"),
-      securityRating: parseFloat(summary.measures?.security_rating?.value ?? "0"),
+      vulnerabilities: parseInt(
+        summary.measures?.vulnerabilities?.value ?? "0",
+      ),
+      reliabilityRating: parseFloat(
+        summary.measures?.reliability_rating?.value ?? "0",
+      ),
+      securityRating: parseFloat(
+        summary.measures?.security_rating?.value ?? "0",
+      ),
       sqaleRating: parseFloat(summary.measures?.sqale_rating?.value ?? "0"),
       ncloc: parseInt(summary.measures?.ncloc?.value ?? "0"),
     },

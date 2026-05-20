@@ -2,7 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { GitBranch, ArrowRight, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  GitBranch,
+  ArrowRight,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 
 interface LogEntry {
   id: number;
@@ -69,7 +75,10 @@ export default function Home() {
             setProgress({ current: data.index, total: data.total });
             addLog("repo", `[${data.index}/${data.total}] ${data.slug}`);
           } else if (data.type === "skip") {
-            addLog("skip", `[${data.index}/${data.total}] ${data.scanId} — ${data.message}`);
+            addLog(
+              "skip",
+              `[${data.index}/${data.total}] ${data.scanId} — ${data.message}`,
+            );
           } else if (data.type === "error" && !data.repos) {
             addLog("error", data.message);
             setError(data.message);
@@ -98,13 +107,17 @@ export default function Home() {
           </div>
           <h1 className="text-3xl font-bold tracking-tight">GitRoll Helper</h1>
           <p className="text-muted-foreground text-lg">
-            Export bugs, code smells &amp; vulnerabilities from your GitRoll scans
+            Export bugs, code smells &amp; vulnerabilities from your GitRoll
+            scans
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="profile" className="text-sm font-medium text-muted-foreground">
+            <label
+              htmlFor="profile"
+              className="text-sm font-medium text-muted-foreground"
+            >
               GitRoll Profile URL
             </label>
             <div className="relative">
@@ -150,7 +163,9 @@ export default function Home() {
                   <div className="w-32 h-1.5 bg-muted rounded-full overflow-hidden">
                     <div
                       className="h-full bg-primary rounded-full transition-all duration-300"
-                      style={{ width: `${(progress.current / progress.total) * 100}%` }}
+                      style={{
+                        width: `${(progress.current / progress.total) * 100}%`,
+                      }}
                     />
                   </div>
                   <span className="text-xs text-muted-foreground tabular-nums">
@@ -159,7 +174,10 @@ export default function Home() {
                 </div>
               )}
             </div>
-            <div ref={logRef} className="max-h-48 overflow-y-auto p-3 font-mono text-xs space-y-0.5">
+            <div
+              ref={logRef}
+              className="max-h-48 overflow-y-auto p-3 font-mono text-xs space-y-0.5"
+            >
               {logs.map((log) => (
                 <div key={log.id} className="flex items-start gap-1.5">
                   {log.type === "done" ? (
@@ -168,7 +186,11 @@ export default function Home() {
                     <AlertCircle className="w-3 h-3 text-danger mt-0.5 shrink-0" />
                   ) : (
                     <span className="w-3 text-center text-muted-foreground mt-0.5 shrink-0">
-                      {log.type === "repo" ? "+" : log.type === "skip" ? "!" : "·"}
+                      {log.type === "repo"
+                        ? "+"
+                        : log.type === "skip"
+                          ? "!"
+                          : "·"}
                     </span>
                   )}
                   <span
@@ -176,10 +198,10 @@ export default function Home() {
                       log.type === "error"
                         ? "text-danger"
                         : log.type === "done"
-                        ? "text-success"
-                        : log.type === "skip"
-                        ? "text-muted-foreground"
-                        : "text-foreground/80"
+                          ? "text-success"
+                          : log.type === "skip"
+                            ? "text-muted-foreground"
+                            : "text-foreground/80"
                     }
                   >
                     {log.message}

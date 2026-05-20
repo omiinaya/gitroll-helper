@@ -59,10 +59,17 @@ function CreateIssuesInner() {
   const { data: session, status } = useSession();
   const [repos, setRepos] = useState<Repo[]>([]);
   const [selectedRepos, setSelectedRepos] = useState<Set<string>>(new Set());
-  const [categories, setCategories] = useState<Set<string>>(new Set(["bugs", "codeSmells", "vulnerabilities"]));
+  const [categories, setCategories] = useState<Set<string>>(
+    new Set(["bugs", "codeSmells", "vulnerabilities"]),
+  );
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [running, setRunning] = useState(false);
-  const [summary, setSummary] = useState<{ created: number; updated: number; skipped: number; failed: number } | null>(null);
+  const [summary, setSummary] = useState<{
+    created: number;
+    updated: number;
+    skipped: number;
+    failed: number;
+  } | null>(null);
   const [loadingRepos, setLoadingRepos] = useState(true);
   const logRef = useRef<HTMLDivElement>(null);
   const idRef = useRef(0);
@@ -96,7 +103,10 @@ function CreateIssuesInner() {
     setSummary(null);
 
     // Fetch detailed issues for selected repos
-    addLog({ type: "info", message: `Fetching issue details for ${selectedRepos.size} repos...` });
+    addLog({
+      type: "info",
+      message: `Fetching issue details for ${selectedRepos.size} repos...`,
+    });
 
     const detailedRepos: Repo[] = [];
     const selectedReposList = repos.filter((r) => selectedRepos.has(r.scanId));
@@ -116,7 +126,10 @@ function CreateIssuesInner() {
       }
     }
 
-    addLog({ type: "info", message: `Creating issues for ${detailedRepos.length} repos...\n` });
+    addLog({
+      type: "info",
+      message: `Creating issues for ${detailedRepos.length} repos...\n`,
+    });
 
     const cats = Array.from(categories);
 
@@ -127,7 +140,11 @@ function CreateIssuesInner() {
         body: JSON.stringify({
           repos: detailedRepos.map((r) => ({
             slug: r.slug,
-            issues: r.issues ?? { bugs: [], codeSmells: [], vulnerabilities: [] },
+            issues: r.issues ?? {
+              bugs: [],
+              codeSmells: [],
+              vulnerabilities: [],
+            },
             metrics: r.metrics,
           })),
           categories: cats,
@@ -163,11 +180,26 @@ function CreateIssuesInner() {
                 message: `\nDone! Created: ${data.totalCreated} | Updated: ${data.totalUpdated} | Skipped: ${data.totalSkipped} | Failed: ${data.totalFailed}`,
               });
             } else if (data.type === "skip") {
-              addLog({ type: "skip", repo: data.repo, category: data.category, message: `  ${data.repo} [${data.category}] — skipped (${data.reason})` });
+              addLog({
+                type: "skip",
+                repo: data.repo,
+                category: data.category,
+                message: `  ${data.repo} [${data.category}] — skipped (${data.reason})`,
+              });
             } else if (data.type === "error") {
-              addLog({ type: "error", repo: data.repo, category: data.category, message: `  ${data.repo} [${data.category}] — FAILED: ${data.error}` });
+              addLog({
+                type: "error",
+                repo: data.repo,
+                category: data.category,
+                message: `  ${data.repo} [${data.category}] — FAILED: ${data.error}`,
+              });
             } else {
-              const catLabel = data.category === "bugs" ? "bugs" : data.category === "codeSmells" ? "code smells" : "vulnerabilities";
+              const catLabel =
+                data.category === "bugs"
+                  ? "bugs"
+                  : data.category === "codeSmells"
+                    ? "code smells"
+                    : "vulnerabilities";
               addLog({
                 type: data.type,
                 repo: data.repo,
@@ -180,7 +212,10 @@ function CreateIssuesInner() {
         }
       }
     } catch (err) {
-      addLog({ type: "error", message: `Fatal error: ${err instanceof Error ? err.message : "Unknown"}` });
+      addLog({
+        type: "error",
+        message: `Fatal error: ${err instanceof Error ? err.message : "Unknown"}`,
+      });
     }
 
     setRunning(false);
@@ -217,7 +252,10 @@ function CreateIssuesInner() {
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-3">
-          <button onClick={() => router.push("/dashboard")} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-lg font-semibold">Create GitHub Issues</h1>
@@ -231,8 +269,12 @@ function CreateIssuesInner() {
             {/* Auth */}
             {!session ? (
               <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">GitHub Auth</h2>
-                <p className="text-sm text-muted-foreground">Sign in to create issues on your repos.</p>
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  GitHub Auth
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Sign in to create issues on your repos.
+                </p>
                 <button
                   onClick={() => signIn("github")}
                   className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-foreground text-background font-medium text-sm hover:opacity-90 transition-opacity"
@@ -249,7 +291,9 @@ function CreateIssuesInner() {
                   </div>
                   <div>
                     <p className="text-sm font-medium">{session.user?.name}</p>
-                    <p className="text-xs text-muted-foreground">{session.user?.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {session.user?.email}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -257,33 +301,74 @@ function CreateIssuesInner() {
 
             {/* Categories */}
             <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Categories</h2>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Categories
+              </h2>
               <div className="space-y-2">
-                <CategoryToggle active={categories.has("bugs")} onToggle={() => toggleCategory("bugs")} icon={<Bug className="w-4 h-4" />} label="Bugs" color="text-warning" />
-                <CategoryToggle active={categories.has("codeSmells")} onToggle={() => toggleCategory("codeSmells")} icon={<Wind className="w-4 h-4" />} label="Code Smells" color="text-info" />
-                <CategoryToggle active={categories.has("vulnerabilities")} onToggle={() => toggleCategory("vulnerabilities")} icon={<ShieldAlert className="w-4 h-4" />} label="Vulnerabilities" color="text-danger" />
+                <CategoryToggle
+                  active={categories.has("bugs")}
+                  onToggle={() => toggleCategory("bugs")}
+                  icon={<Bug className="w-4 h-4" />}
+                  label="Bugs"
+                  color="text-warning"
+                />
+                <CategoryToggle
+                  active={categories.has("codeSmells")}
+                  onToggle={() => toggleCategory("codeSmells")}
+                  icon={<Wind className="w-4 h-4" />}
+                  label="Code Smells"
+                  color="text-info"
+                />
+                <CategoryToggle
+                  active={categories.has("vulnerabilities")}
+                  onToggle={() => toggleCategory("vulnerabilities")}
+                  icon={<ShieldAlert className="w-4 h-4" />}
+                  label="Vulnerabilities"
+                  color="text-danger"
+                />
               </div>
             </div>
 
             {/* Run */}
             <button
               onClick={handleRun}
-              disabled={running || !session || selectedRepos.size === 0 || categories.size === 0}
+              disabled={
+                running ||
+                !session ||
+                selectedRepos.size === 0 ||
+                categories.size === 0
+              }
               className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 disabled:opacity-40 transition-all"
             >
-              {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-              {running ? "Running..." : `Create Issues (${selectedRepos.size} repos)`}
+              {running ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+              {running
+                ? "Running..."
+                : `Create Issues (${selectedRepos.size} repos)`}
             </button>
 
             {/* Repo Selection */}
             <div className="rounded-xl border border-border bg-card p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Repos</h2>
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Repos
+                </h2>
                 <button
-                  onClick={() => setSelectedRepos(selectedRepos.size === repos.length ? new Set() : new Set(repos.map((r) => r.scanId)))}
+                  onClick={() =>
+                    setSelectedRepos(
+                      selectedRepos.size === repos.length
+                        ? new Set()
+                        : new Set(repos.map((r) => r.scanId)),
+                    )
+                  }
                   className="text-xs text-primary hover:underline"
                 >
-                  {selectedRepos.size === repos.length ? "Deselect all" : "Select all"}
+                  {selectedRepos.size === repos.length
+                    ? "Deselect all"
+                    : "Select all"}
                 </button>
               </div>
               <div className="max-h-64 overflow-y-auto space-y-1 pr-1">
@@ -300,7 +385,9 @@ function CreateIssuesInner() {
                     />
                     <span className="flex-1 truncate">{repo.slug}</span>
                     <span className="text-xs text-muted-foreground">
-                      {repo.metrics.bugs + repo.metrics.codeSmells + repo.metrics.vulnerabilities}
+                      {repo.metrics.bugs +
+                        repo.metrics.codeSmells +
+                        repo.metrics.vulnerabilities}
                     </span>
                   </label>
                 ))}
@@ -312,30 +399,52 @@ function CreateIssuesInner() {
           <div className="lg:col-span-2 space-y-4">
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="px-5 py-3 border-b border-border flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Live Log</h2>
-                {running && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Live Log
+                </h2>
+                {running && (
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                )}
               </div>
-              <div ref={logRef} className="h-[600px] overflow-y-auto p-4 font-mono text-sm space-y-0.5">
+              <div
+                ref={logRef}
+                className="h-[600px] overflow-y-auto p-4 font-mono text-sm space-y-0.5"
+              >
                 {logs.length === 0 && !running && (
                   <p className="text-muted-foreground text-center py-8">
                     Click &quot;Create Issues&quot; to start.
                   </p>
                 )}
                 {logs.map((log) => (
-                  <div key={log.id} className="log-line flex items-start gap-2 py-0.5">
+                  <div
+                    key={log.id}
+                    className="log-line flex items-start gap-2 py-0.5"
+                  >
                     <LogIcon type={log.type} />
-                    <span className={
-                      log.type === "error" ? "text-danger" :
-                      log.type === "created" ? "text-success" :
-                      log.type === "updated" ? "text-info" :
-                      log.type === "skip" ? "text-muted-foreground" :
-                      log.type === "done" ? "text-success font-bold" :
-                      "text-foreground/80"
-                    }>
+                    <span
+                      className={
+                        log.type === "error"
+                          ? "text-danger"
+                          : log.type === "created"
+                            ? "text-success"
+                            : log.type === "updated"
+                              ? "text-info"
+                              : log.type === "skip"
+                                ? "text-muted-foreground"
+                                : log.type === "done"
+                                  ? "text-success font-bold"
+                                  : "text-foreground/80"
+                      }
+                    >
                       {log.message}
                     </span>
                     {log.url && (
-                      <a href={log.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1">
+                      <a
+                        href={log.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline inline-flex items-center gap-1"
+                      >
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
@@ -346,10 +455,26 @@ function CreateIssuesInner() {
 
             {summary && (
               <div className="grid grid-cols-4 gap-3">
-                <SummaryCard label="Created" value={summary.created} color="text-success" />
-                <SummaryCard label="Updated" value={summary.updated} color="text-info" />
-                <SummaryCard label="Skipped" value={summary.skipped} color="text-muted-foreground" />
-                <SummaryCard label="Failed" value={summary.failed} color="text-danger" />
+                <SummaryCard
+                  label="Created"
+                  value={summary.created}
+                  color="text-success"
+                />
+                <SummaryCard
+                  label="Updated"
+                  value={summary.updated}
+                  color="text-info"
+                />
+                <SummaryCard
+                  label="Skipped"
+                  value={summary.skipped}
+                  color="text-muted-foreground"
+                />
+                <SummaryCard
+                  label="Failed"
+                  value={summary.failed}
+                  color="text-danger"
+                />
               </div>
             )}
           </div>
@@ -361,16 +486,40 @@ function CreateIssuesInner() {
 
 function LogIcon({ type }: { type: string }) {
   switch (type) {
-    case "created": return <CheckCircle2 className="w-3.5 h-3.5 text-success mt-0.5 shrink-0" />;
-    case "updated": return <CheckCircle2 className="w-3.5 h-3.5 text-info mt-0.5 shrink-0" />;
-    case "error": return <XCircle className="w-3.5 h-3.5 text-danger mt-0.5 shrink-0" />;
-    case "skip": return <AlertCircle className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />;
-    case "done": return <CheckCircle2 className="w-3.5 h-3.5 text-success mt-0.5 shrink-0" />;
-    default: return <span className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0">›</span>;
+    case "created":
+      return (
+        <CheckCircle2 className="w-3.5 h-3.5 text-success mt-0.5 shrink-0" />
+      );
+    case "updated":
+      return <CheckCircle2 className="w-3.5 h-3.5 text-info mt-0.5 shrink-0" />;
+    case "error":
+      return <XCircle className="w-3.5 h-3.5 text-danger mt-0.5 shrink-0" />;
+    case "skip":
+      return (
+        <AlertCircle className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+      );
+    case "done":
+      return (
+        <CheckCircle2 className="w-3.5 h-3.5 text-success mt-0.5 shrink-0" />
+      );
+    default:
+      return (
+        <span className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0">
+          ›
+        </span>
+      );
   }
 }
 
-function SummaryCard({ label, value, color }: { label: string; value: number; color: string }) {
+function SummaryCard({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) {
   return (
     <div className="rounded-lg border border-border bg-card p-3 text-center">
       <div className={`text-2xl font-bold ${color}`}>{value}</div>
